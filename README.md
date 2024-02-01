@@ -1,0 +1,2 @@
+# reconstruct_plasmids_snakemake
+Snakemake pipeline for reconstructing plasmids
