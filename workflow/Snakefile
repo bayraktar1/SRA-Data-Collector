@@ -1,0 +1,39 @@
+
+rule all:
+    input:
+        'ILLUMINA.csv',
+        'OXFORD_NANOPORE.csv',
+        'PACBIO_SMRT.csv'
+
+
+rule query_ncbi:
+    """
+    """
+    output:
+        feather_file = ""
+    params:
+        taxon_id = ""
+    conda:
+        ""
+    log:
+        "logs/"
+    shell:
+        '''(
+        ) >{log} 2>&1'''
+
+rule wrangle_metadata:
+    """
+    """
+    input:
+        feather_file = rules.query_ncbi.output.feather_file
+    output:
+        illumina = "ILLUMINA.csv",
+        nanopore = "OXFORD_NANOPORE.csv",
+        pacbio = "PACBIO_SMRT.csv"
+    conda:
+        ""
+    log:
+        "logs/"
+    shell:
+        '''(
+        ) >{log} 2>&1'''
