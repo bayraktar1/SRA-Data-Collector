@@ -8,17 +8,24 @@ rule all:
 
 rule query_ncbi:
     """
+    Download or use already present NCBI SRA database dump to 
+    query for SRA samples
     """
     output:
-        feather_file = ""
+        feather_file = "results/SRA.feather"
     params:
-        taxon_id = ""
+        taxon_id = config["taxon_id"],
+        database = config["database"]
     conda:
-        ""
+        "envs/retrieve_ncbi_metadata.yaml"
     log:
-        "logs/"
+        "logs/query_ncbi.log"
     shell:
-        '''(
+        r'''(
+        scripts/retrieve_NCBI_metadata.R \
+            --database {params.database} \
+            --taxon_id {params.taxon_id} \
+            --output {output.feather_file}
         ) >{log} 2>&1'''
 
 rule wrangle_metadata:
@@ -31,9 +38,10 @@ rule wrangle_metadata:
         nanopore = "OXFORD_NANOPORE.csv",
         pacbio = "PACBIO_SMRT.csv"
     conda:
-        ""
+        "envs/wrangle_ncbi_metadata.yaml"
     log:
-        "logs/"
+        "logs/wrangle_metadata.log"
     shell:
         '''(
+        papermill notebooks/wrangle_NCBI_metadata.py.ipynb -p file_path {input.feather_file}
         ) >{log} 2>&1'''
