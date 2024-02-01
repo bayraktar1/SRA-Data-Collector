@@ -1,0 +1,2 @@
+database: "resources/SRAmetadb.sqlite"
+taxon_id: "543"
