@@ -1,9 +1,10 @@
+configfile: "config/config.yaml"
 
 rule all:
     input:
-        'ILLUMINA.csv',
-        'OXFORD_NANOPORE.csv',
-        'PACBIO_SMRT.csv'
+        'results/ILLUMINA.csv',
+        'results/OXFORD_NANOPORE.csv',
+        'results/PACBIO_SMRT.csv'
 
 
 rule query_ncbi:
@@ -14,34 +15,39 @@ rule query_ncbi:
     output:
         feather_file = "results/SRA.feather"
     params:
-        taxon_id = config["taxon_id"],
-        database = config["database"]
-    conda:
-        "envs/retrieve_ncbi_metadata.yaml"
-    log:
-        "logs/query_ncbi.log"
+        database = config['database'],
+        taxon = config['taxon_id'],
+    conda: "envs/retrieve_ncbi_metadata.yaml"
+    log: "logs/query_ncbi.log"
     shell:
-        r'''(
-        scripts/retrieve_NCBI_metadata.R \
+        r'''
+        (workflow/scripts/retrieve_NCBI_metadata.R \
             --database {params.database} \
-            --taxon_id {params.taxon_id} \
-            --output {output.feather_file}
-        ) >{log} 2>&1'''
+            --taxon_id {params.taxon} \
+            --output {output.feather_file}) >{log} 2>&1
+        '''
+
 
 rule wrangle_metadata:
     """
+    Wrangles metadata from NCBI so that all runs have a isolation source
+    geolocation and collection date.
     """
     input:
         feather_file = rules.query_ncbi.output.feather_file
     output:
-        illumina = "ILLUMINA.csv",
-        nanopore = "OXFORD_NANOPORE.csv",
-        pacbio = "PACBIO_SMRT.csv"
-    conda:
-        "envs/wrangle_ncbi_metadata.yaml"
-    log:
-        "logs/wrangle_metadata.log"
-    shell:
-        '''(
-        papermill notebooks/wrangle_NCBI_metadata.py.ipynb -p file_path {input.feather_file}
-        ) >{log} 2>&1'''
+        illumina = "results/ILLUMINA.csv",
+        nanopore = "results/OXFORD_NANOPORE.csv",
+        pacbio = "results/PACBIO_SMRT.csv"
+    conda: "envs/wrangle_ncbi_metadata.yaml"
+    log: notebook="logs/processed_notebook.ipynb"
+    notebook: "notebooks/wrangle_NCBI_metadata.py.ipynb"
+    # log: "logs/wrangle_ncbi_metadata.log"
+    # shell:
+    #     '''
+    #     (papermill workflow/notebooks/wrangle_NCBI_metadata.py.ipynb \
+    #         -p file_path {input.feather_file} \
+    #         -p illumina_out {output.illumina} \
+    #         -p nanopore_out {output.nanopore} \
+    #         -p pacbio_out {output.pacbio}) >{log} 2>&1
+    #     '''
