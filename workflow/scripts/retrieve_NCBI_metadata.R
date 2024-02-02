@@ -1,3 +1,8 @@
+#!/usr/bin/Rscript
+
+# log <- file(snakemake@log[[1]], open="wt")
+# sink(log)
+
 library(SRAdb)
 library(taxizedb)
 library(tidyverse)
@@ -15,6 +20,9 @@ database_loc <- xargs$database
 received_taxon_id <- xargs$taxon_id
 output <- xargs$output
 
+# database_loc <- snakemake@config[["database"]]
+# received_taxon_id <- snakemake@config[["taxon_id"]]
+# output <- snakemake@output[[1]]
 
 cat("Database location:", database_loc, "\n")
 cat("Output file:", output, "\n")
@@ -45,7 +53,7 @@ sql_query <- sprintf(
       (platform = 'ILLUMINA' AND library_layout = 'PAIRED - ')
       OR platform = 'OXFORD_NANOPORE'
       OR platform = 'PACBIO_SMRT'
-    );", paste(enterobacteriaceae_species$received_taxon_id$childtaxa_id, collapse = ", "))
+    );", paste(unlist(enterobacteriaceae_species[[received_taxon_id]][['childtaxa_id']]), collapse = ", "))
 
 cat('Running query... \n')
 sra_info <- dbGetQuery(sra_con, sql_query)
