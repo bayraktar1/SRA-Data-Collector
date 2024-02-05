@@ -51,3 +51,19 @@ rule wrangle_metadata:
     #         -p nanopore_out {output.nanopore} \
     #         -p pacbio_out {output.pacbio}) >{log} 2>&1
     #     '''
+
+rule download_files:
+    """
+    Downloads FASTA / FASTQ files for ID's collected in wrangle_metadata with SRAtools
+    """
+    input:
+        metadata = rules.wrangle_metadata.output.illumina
+    output: ""
+    conda: "envs/"
+    log: "logs/download_files.log"
+    shell:
+        '''
+        bash workflow/scripts/download_sra_files.sh \
+            -f {input.metadata} \
+            -o 
+        '''
