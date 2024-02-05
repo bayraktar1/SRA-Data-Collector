@@ -55,8 +55,11 @@ def find_columns(keywords, dataframe, exclude_keywords=None):
 
 
 def test_find_columns():
-    input_df = pd.DataFrame({'geo_location': [1, 2, 3], 'geographic': [4, 5, 6], 'env': [1, 2, 3],
-                             'sample': [1, 2, 3], 'location': [1, 2, 3]})
+    input_df = pd.DataFrame({'geo_location': [1, 2, 3],
+                             'geographic': [4, 5, 6],
+                             'env': [1, 2, 3],
+                             'sample': [1, 2, 3],
+                             'location': [1, 2, 3]})
 
     result = find_columns(['geo', 'location'], input_df)
     assert result == {'geo_location', 'location', 'geographic'}
