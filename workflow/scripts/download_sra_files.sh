@@ -40,7 +40,6 @@ while getopts "ho:f:" option; do
    esac
 done
 
-
 ############################################################
 # Check required inputs                                    #
 ############################################################
@@ -49,23 +48,26 @@ if [ -z "$input" ] ||[ -z "$output" ]; then
     exit 1
 fi
 
-
-#file='/home/bayraktar/PycharmProjects/reconstruct_plasmids_snakemake/results/test.csv'
-
-#cd '/media/bayraktar/DATA/umcstage' || exit
+############################################################
+# Code                                                     #
+############################################################
+mkidir "${output}"
 cd "${output}" || exit
 
-while read line; do {
-  id=$(echo "${line}" | awk -F '\t' '{print $1}');
-  name=$(echo "${line}" | awk -F '\t' '{print $49}');
+tail -n +2 "${input}" | while read -r line; do
+  id=$(echo "${line}" | awk -F '\t' '{print $1}')
+  name=$(echo "${line}" | awk -F '\t' '{print $49}' | tr ' ' '_')
 
-	echo "${id}" "${name}"
+  echo "${id}" "${name}"
   mkdir -p "${name}"
   cd "${name}" || exit
   prefetch "${id}"
   fasterq-dump "${id}"
-  mv "${id}".* "${id}"
-}
-done < ${input}
-#done < ${file}
+  mv "${id}"*.* "${id}"
+  rm "${id}"/*.sra
+  cd ..
+done
+
+touch done.txt
+cd ..
 

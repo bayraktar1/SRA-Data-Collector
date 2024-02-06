@@ -16,7 +16,7 @@ rule query_ncbi:
         feather_file = "results/SRA.feather"
     params:
         database = config['database'],
-        taxon = config['taxon_id'],
+        taxon = config['taxon_id']
     conda: "envs/retrieve_ncbi_metadata.yaml"
     log: "logs/query_ncbi.log"
     shell:
@@ -58,12 +58,14 @@ rule download_files:
     """
     input:
         metadata = rules.wrangle_metadata.output.illumina
-    output: ""
+    params:
+        download_dir = "results/SRA_downloads"
+    output: "results/SRA_downloads/done.txt"
     conda: "envs/"
     log: "logs/download_files.log"
     shell:
-        '''(
-        bash workflow/scripts/download_sra_files.sh \
+        '''
+        (bash workflow/scripts/download_sra_files.sh \
             -f {input.metadata} \
-            -o 
+            -o {params.download_dir}
         ) >{log} 2>&1'''
