@@ -62,8 +62,8 @@ rule download_files:
     conda: "envs/"
     log: "logs/download_files.log"
     shell:
-        '''
+        '''(
         bash workflow/scripts/download_sra_files.sh \
             -f {input.metadata} \
             -o 
-        '''
+        ) >{log} 2>&1'''
