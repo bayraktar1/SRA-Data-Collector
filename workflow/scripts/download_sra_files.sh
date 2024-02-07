@@ -49,7 +49,7 @@ if [ -z "$input" ] ||[ -z "$output" ]; then
 fi
 
 ############################################################
-# Code                                                     #
+# Download files from SRA                                  #
 ############################################################
 mkidir "${output}"
 cd "${output}" || exit
@@ -62,7 +62,7 @@ tail -n +2 "${input}" | while read -r line; do
   mkdir -p "${name}"
   cd "${name}" || exit
   prefetch "${id}"
-  fasterq-dump "${id}"
+  fasterq-dump "${id}" | gzip -c > "${id}".gz
   mv "${id}"*.* "${id}"
   rm "${id}"/*.sra
   cd ..
