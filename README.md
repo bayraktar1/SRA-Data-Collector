@@ -1,2 +1,4 @@
-# reconstruct_plasmids_snakemake
-Snakemake pipeline for reconstructing plasmids
+# Pipeline for downloading samples from NCBI
+
+## Flowchart
+![Flowchart](NCBI_download.drawio.png)
