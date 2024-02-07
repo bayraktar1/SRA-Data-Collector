@@ -62,7 +62,8 @@ tail -n +2 "${input}" | while read -r line; do
   mkdir -p "${name}"
   cd "${name}" || exit
   prefetch "${id}"
-  fasterq-dump "${id}" | gzip -c > "${id}".gz
+  fasterq-dump "${id}" # Uses six threads by default
+  gzip ./*.fastq
   mv "${id}"*.* "${id}"
   rm "${id}"/*.sra
   cd ..
