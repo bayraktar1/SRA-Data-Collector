@@ -62,6 +62,7 @@ rule download_files:
         download_dir = "results/SRA_downloads"
     output: "results/SRA_downloads/done.txt"
     conda: "envs/"
+    threads: 6
     log: "logs/download_files.log"
     shell:
         '''
