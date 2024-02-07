@@ -19,6 +19,7 @@ rule query_ncbi:
         taxon = config['taxon_id']
     conda: "envs/retrieve_ncbi_metadata.yaml"
     log: "logs/query_ncbi.log"
+    threads: 1
     shell:
         r'''
         (workflow/scripts/retrieve_NCBI_metadata.R \
@@ -40,6 +41,7 @@ rule wrangle_metadata:
         nanopore = "results/OXFORD_NANOPORE.csv",
         pacbio = "results/PACBIO_SMRT.csv"
     conda: "envs/wrangle_ncbi_metadata.yaml"
+    threads: 1
     log: notebook="logs/processed_notebook.ipynb"
     notebook: "notebooks/wrangle_NCBI_metadata.py.ipynb"
     # log: "logs/wrangle_ncbi_metadata.log"
