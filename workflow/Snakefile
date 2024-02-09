@@ -39,7 +39,7 @@ rule wrangle_metadata:
     output:
         metadata = 'results/metadata.csv',
         clean_tsv = 'results/clean_tsv.tsv'
-    conda: "envs/wrangle_ncbi_metadata.yaml"
+    conda: "envs/NCBI_metadata_notebook.yml"
     threads: 1
     log: notebook="logs/processed_notebook.ipynb"
     notebook: "notebooks/wrangle_NCBI_metadata.py.ipynb"
