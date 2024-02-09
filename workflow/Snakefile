@@ -60,7 +60,8 @@ rule download_files:
     input:
         metadata = rules.wrangle_metadata.output.clean_tsv
     params:
-        download_dir = "results/SRA_downloads"
+        download_dir = "results/SRA_downloads",
+        platform = "ILLUMINA"
     output: "results/SRA_downloads/done.txt"
     conda: "envs/"
     threads: 6
@@ -69,5 +70,6 @@ rule download_files:
         '''
         (bash workflow/scripts/download_sra_files.sh \
             -f {input.metadata} \
-            -o {params.download_dir}
+            -o {params.download_dir} \
+            -p {params.platform}
         ) >{log} 2>&1'''

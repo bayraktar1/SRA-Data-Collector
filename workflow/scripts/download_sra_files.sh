@@ -10,6 +10,7 @@ show_help() {
     echo "  -h : Display this help message."
     echo "  -o : Output directory, must exist."
     echo "  -f : Metadata file."
+    echo "  -p : platform: ILLUMINA, OXFORD_NANOPORE, PACBIO_SMRT"
     echo
 }
 
@@ -21,11 +22,12 @@ show_help() {
 
 output=""
 input=""
+platform=""
 
 ############################################################
 # Process the input                                        #
 ############################################################
-while getopts "ho:f:" option; do
+while getopts "ho:f:p:" option; do
    case $option in
       h) # display Help
          show_help
@@ -34,6 +36,8 @@ while getopts "ho:f:" option; do
          output=$OPTARG;;
       f) # Input metadata
          input=$OPTARG;;
+      p) # Input platform
+         platform=$OPTARG;;
      \?) # Invalid option
          echo "Error: Invalid option $1"
          exit;;
@@ -43,8 +47,8 @@ done
 ############################################################
 # Check required inputs                                    #
 ############################################################
-if [ -z "$input" ] ||[ -z "$output" ]; then
-    echo "Error: Mandatory options (-o, -f) must be specified."
+if [ -z "$input" ] || [ -z "$output" ] || [ -z "$platform" ]; then
+    echo "Error: Mandatory options (-o, -f, -p) must be specified."
     exit 1
 fi
 
@@ -56,17 +60,20 @@ cd "${output}" || exit
 
 tail -n +2 "${input}" | while read -r line; do
   id=$(echo "${line}" | awk -F '\t' '{print $1}')
-  name=$(echo "${line}" | awk -F '\t' '{print $49}' | tr ' ' '_')
+  file_platform=$(echo "${line}" | awk -F '\t' '{print $2}')
+  name=$(echo "${line}" | awk -F '\t' '{print $3}' | tr ' ' '_')
 
-  echo "${id}" "${name}"
-  mkdir -p "${name}"
-  cd "${name}" || exit
-  prefetch "${id}"
-  fasterq-dump "${id}" # Uses six threads by default
-  gzip ./*.fastq
-  mv "${id}"*.* "${id}"
-  rm "${id}"/*.sra
-  cd ..
+  if [ "${file_platform}" == "${platform}" ]; then
+    echo "${id}" "${name}"
+    mkdir -p "${name}"
+    cd "${name}" || exit
+    prefetch "${id}"
+    fasterq-dump "${id}" # Uses six threads by default
+    gzip ./*.fastq
+    mv "${id}"*.* "${id}"
+    rm "${id}"/*.sra
+    cd ..
+  fi
 done
 
 touch done.txt
