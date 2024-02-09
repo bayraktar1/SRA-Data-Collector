@@ -1,11 +1,10 @@
 configfile: "config/config.yaml"
 
+
 rule all:
     input:
+        # 'results/SRA.feather',
         'results/metadata.csv'
-        # 'results/ILLUMINA.csv',
-        # 'results/OXFORD_NANOPORE.csv',
-        # 'results/PACBIO_SMRT.csv'
 
 
 rule query_ncbi:
@@ -18,7 +17,7 @@ rule query_ncbi:
     params:
         database = config['database'],
         taxon = config['taxon_id']
-    conda: "envs/retrieve_ncbi_metadata.yaml"
+    conda: "envs/Renv.yml"
     log: "logs/query_ncbi.log"
     threads: 1
     shell:
@@ -38,10 +37,8 @@ rule wrangle_metadata:
     input:
         feather_file = rules.query_ncbi.output.feather_file
     output:
-        metadata = 'results/metadata.csv'
-        # illumina = "results/ILLUMINA.csv",
-        # nanopore = "results/OXFORD_NANOPORE.csv",
-        # pacbio = "results/PACBIO_SMRT.csv"
+        metadata = 'results/metadata.csv',
+        clean_tsv = 'results/clean_tsv.tsv'
     conda: "envs/wrangle_ncbi_metadata.yaml"
     threads: 1
     log: notebook="logs/processed_notebook.ipynb"
@@ -61,7 +58,7 @@ rule download_files:
     Downloads FASTA / FASTQ files for ID's collected in wrangle_metadata with SRAtools
     """
     input:
-        metadata = rules.wrangle_metadata.output.metadata
+        metadata = rules.wrangle_metadata.output.clean_tsv
     params:
         download_dir = "results/SRA_downloads"
     output: "results/SRA_downloads/done.txt"
