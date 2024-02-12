@@ -55,7 +55,7 @@ fi
 ############################################################
 # Download files from SRA                                  #
 ############################################################
-mkidir "${output}"
+mkdir "${output}"
 cd "${output}" || exit
 
 tail -n +2 "${input}" | while read -r line; do
