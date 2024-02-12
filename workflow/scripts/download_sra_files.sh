@@ -5,12 +5,14 @@
 # Help                                                     #
 ############################################################
 show_help() {
-    echo "Usage: $0 -f <Metadata file> -o <output directory>"
+    echo "Usage: $0 -f <Metadata file> -o <output directory> -p <platform>"
     echo "Options:"
     echo "  -h : Display this help message."
     echo "  -o : Output directory, must exist."
     echo "  -f : Metadata file."
-    echo "  -p : platform: ILLUMINA, OXFORD_NANOPORE, PACBIO_SMRT"
+    echo "  -p : Download illumina files (can be combined)."
+    echo "  -n : Download nanopore files (can be combined)."
+    echo "  -i : Download pacbio files. (can be combined)."
     echo
 }
 
@@ -20,62 +22,95 @@ show_help() {
 ############################################################
 ############################################################
 
-output=""
-input=""
-platform=""
+output="SRA_downloads"
+input="results/metadata.csv"
+#platform="ILLUMINA"
 
 ############################################################
 # Process the input                                        #
 ############################################################
-while getopts "ho:f:p:" option; do
+if [ $# -eq 0 ]; then
+    show_help
+    exit 1
+fi
+
+while getopts "ho:f:i:n:p" option; do
    case $option in
       h) # display Help
          show_help
-         exit;;
+         exit
+         ;;
       o) # output
-         output=$OPTARG;;
+         output=$OPTARG
+         ;;
       f) # Input metadata
-         input=$OPTARG;;
-      p) # Input platform
-         platform=$OPTARG;;
+         input=$OPTARG
+         ;;
+      i) # download illumina
+         illumina=true
+         ;;
+      n) # download nanopore
+         nanopore=true
+         ;;
+      p) # download pacbio
+         pacbio=true
+         ;;
      \?) # Invalid option
          echo "Error: Invalid option $1"
-         exit;;
+         exit
+         ;;
    esac
 done
 
 ############################################################
 # Check required inputs                                    #
 ############################################################
-if [ -z "$input" ] || [ -z "$output" ] || [ -z "$platform" ]; then
-    echo "Error: Mandatory options (-o, -f, -p) must be specified."
+if [ -z "$input" ] || [ -z "$output" ]; then
+    echo "Error: Mandatory options (-o, -f) must be specified."
     exit 1
 fi
+
+input_path=$(realpath -e "${input}") || exit
 
 ############################################################
 # Download files from SRA                                  #
 ############################################################
-mkdir "${output}"
+
+download () {
+    echo "${1}" "${2}" "${3}"
+    mkdir -p "${2}"/"${3}" && cd "$_" || exit
+    prefetch "${1}"
+    fasterq-dump "${1}" # Uses six threads by default
+    gzip ./*.fastq
+    mv "${1}"*.* "${1}"
+    rm "${1}"/*.sra
+    cd ../..
+}
+
+mkdir -p "${output}"
 cd "${output}" || exit
 
-tail -n +2 "${input}" | while read -r line; do
+tail -n +2 "${input_path}" | while read -r line; do
+
   id=$(echo "${line}" | awk -F '\t' '{print $1}')
   file_platform=$(echo "${line}" | awk -F '\t' '{print $2}')
   name=$(echo "${line}" | awk -F '\t' '{print $3}' | tr ' ' '_')
 
-  if [ "${file_platform}" == "${platform}" ]; then
-    echo "${id}" "${name}"
-    mkdir -p "${name}"
-    cd "${name}" || exit
-    prefetch "${id}"
-    fasterq-dump "${id}" # Uses six threads by default
-    gzip ./*.fastq
-    mv "${id}"*.* "${id}"
-    rm "${id}"/*.sra
-    cd ..
+  if [ "${file_platform}" == "ILLUMINA" ] && [ "${illumina}"  ]; then
+    download "${id}" "${name}" "illumina"
+  elif [ "${file_platform}" == "OXFORD_NANOPORE" ] && [ "${nanopore}" ]; then
+    download "${id}" "${name}" "nanopore"
+  elif [ "${file_platform}" == "PACBIO_SMRT" ] && [ "${pacbio}" ]; then
+    download "${id}" "${name}" "pacbio"
   fi
+
 done
 
+# This is a bad way to handle the output
+# Need to think of something else
+# Maybe extract the names from the samples somehow but how would you make that as the output in the rule?
+# probably need to make a helper function in python and run that before the rule
+# this then makes a list of directory names that should be output by the next rule aka this one
 touch done.txt
 cd ..
 
