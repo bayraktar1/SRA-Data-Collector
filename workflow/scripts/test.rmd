@@ -1,0 +1,79 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(SRAdb)
+library(taxizedb)
+library(tidyverse)
+library(magrittr)
+library(feather)
+
+```
+
+```{r}
+database_loc <- "/home/bayraktar/PycharmProjects/reconstruct_plasmids/data/SRAmetadb.sqlite"
+sqlfile <- file.path(database_loc)
+```
+
+```{r}
+received_taxon_id <- '543'
+```
+
+```{r}
+enterobacteriaceae_species <- taxizedb::downstream(received_taxon_id, db="ncbi", downto=c('species','strain'), verbose=FALSE)
+```
+
+```{r}
+downstream(543, db='ncbi')[[1]] %>%
+  dplyr::group_by(rank) %>%
+  dplyr::count()
+```
+
+```{r}
+
+downstream(543, downto='strain', db='ncbi')[[1]] %>%
+    dplyr::group_by(rank) %>%
+    dplyr::count()
+```
+
+```{r}
+downstream(543, downto=list('species', 'strain'), db='ncbi')[[1]] %>%
+  dplyr::group_by(rank) %>%
+  dplyr::count()
+```
+
+```{r}
+test_species <-
+
+sql_query <- sprintf(
+  "SELECT *
+  FROM sra
+  WHERE taxon_id IN (%s)
+    AND library_strategy = 'WGS'
+    AND library_source = 'GENOMIC'
+    AND (
+      (platform = 'ILLUMINA' AND library_layout = 'PAIRED - ')
+      OR platform = 'OXFORD_NANOPORE'
+      OR platform = 'PACBIO_SMRT'
+    );", paste(unlist(enterobacteriaceae_species[[received_taxon_id]][['childtaxa_id']]), collapse = ", "))
+
+print(sql_query)
+```
+
+```{r}
+sra_con <- dbConnect(SQLite(),sqlfile)
+```
+
+```{r}
+sra_info <- dbGetQuery(sra_con, sql_query)
+```
+
+
+```{r}
+sra_df <- sra_info %>%
+  as_tibble() %>%
+  mutate_at(vars(taxon_id), list(scientific_name = ~taxid2name(.))) %>%
+  dplyr::select(-which(apply(is.na(.), 2, all)))
+```

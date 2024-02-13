@@ -61,7 +61,7 @@ rule download_files:
         metadata = rules.wrangle_metadata.output.clean_tsv
     params:
         download_dir = "results/SRA_downloads",
-        platform = "ILLUMINA"
+        platforms = config['download_platforms']
     output: "results/SRA_downloads/done.txt"
     conda: "envs/"
     threads: 6
@@ -71,5 +71,16 @@ rule download_files:
         (bash workflow/scripts/download_sra_files.sh \
             -f {input.metadata} \
             -o {params.download_dir} \
-            -p {params.platform}
+            {params.platforms}
         ) >{log} 2>&1'''
+
+# rule download_files:
+#     input:
+#         metadata = rules.wrangle_metadata.output.clean_tsv
+#     output:
+#         directory("results/downloads"),
+#         expand("results/downloads/{sample}.fastq.gz", sample=expand("{sample}", sample=open("accessions.txt").read().strip().split()))
+#     params:
+#         sra_accession=lambda wildcards: wildcards.sample
+#     shell:
+#         "cat {input} | xargs -I {{}} fastq-dump --outdir downloads/ --split-files {{}}"
