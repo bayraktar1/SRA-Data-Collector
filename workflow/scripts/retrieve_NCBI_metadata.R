@@ -27,13 +27,14 @@ output <- xargs$output
 cat("Database location:", database_loc, "\n")
 cat("Output file:", output, "\n")
 
-if (is.null(database_loc)) {
-  cat("Database file not specified. Downloading the file...\n")
-  sqlfile <- getSRAdbFile()
-
-} else {
+if (file.exists(database_loc)) {
   cat("Database file specified. \n")
   sqlfile <- file.path(database_loc)
+} else {
+  cat("Database file not specified. Downloading the file...\n")
+  # https://gbnci.cancer.gov/backup/SRAmetadb.sqlite.gz
+  # https://gbnci.cancer.gov/backup/
+  sqlfile <- getSRAdbFile()
 }
 
 sra_con <- dbConnect(SQLite(),sqlfile)
