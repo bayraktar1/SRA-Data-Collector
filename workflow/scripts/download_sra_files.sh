@@ -24,7 +24,6 @@ show_help() {
 
 output="SRA_downloads"
 input="results/metadata.csv"
-#platform="ILLUMINA"
 
 ############################################################
 # Process the input                                        #
