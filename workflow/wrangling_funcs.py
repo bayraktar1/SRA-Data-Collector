@@ -89,6 +89,23 @@ def combine_columns(df, matches, new_column_name):
     return df
 
 
+def test_combine_columns():
+    input_df = pd.DataFrame({'geo_location': [np.nan, np.nan, np.nan],
+                             'geographic': ['1', '2', '3'],
+                             'location': ['1', '2', np.nan],
+                             'sample': ['1', '2', '3']})
+    matches = ['geo_location', 'geographic', 'location']
+    new_name = 'inferred_location'
+
+    correct_df = pd.DataFrame({'geo_location': [np.nan, np.nan, np.nan],
+                               'geographic': ['1', '2', '3'],
+                               'location': ['1', '2', np.nan],
+                               'sample': ['1', '2', '3'],
+                               'inferred_location': ["1,1", "2,2", "3"]})
+
+    assert correct_df.equals(combine_columns(input_df, matches, new_name))
+
+
 def country_to_continent(country_name):
     """
     Converts the name of a country to the name of the continent it is located in
