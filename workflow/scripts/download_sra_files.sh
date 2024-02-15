@@ -5,14 +5,14 @@
 # Help                                                     #
 ############################################################
 show_help() {
-    echo "Usage: $0 -f <Metadata file> -o <output directory> -p <platform>"
+    echo "Usage: $0 -f <Metadata file> -o <output directory>"
     echo "Options:"
     echo "  -h : Display this help message."
     echo "  -o : Output directory, must exist."
     echo "  -f : Metadata file."
-    echo "  -p : Download illumina files (can be combined)."
+    echo "  -i : Download illumina files (can be combined)."
     echo "  -n : Download nanopore files (can be combined)."
-    echo "  -i : Download pacbio files. (can be combined)."
+    echo "  -p : Download pacbio files. (can be combined)."
     echo
 }
 
