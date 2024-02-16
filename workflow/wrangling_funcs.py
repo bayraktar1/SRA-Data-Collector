@@ -105,6 +105,10 @@ def test_combine_columns():
 
 
 def read_insdc():
+    """
+    Reads in a file containing countries and areas specified by INSDC and turns it into a dictionary
+    :return: {'Country/Area': ['Country/Area', 'Continent']}
+    """
     insdc_dict = {}
     with open('/home/bayraktar/PycharmProjects/reconstruct_plasmids_snakemake/insdc_country_or_area.csv') as file:
         file.readline()  # skip header
@@ -115,34 +119,34 @@ def read_insdc():
 
 
 def clean_geo(location):
+    """
+    Clean geographic data from the NCBI. Country names and area names are based on the Country and Area list from INSDC.
+    :param location: A string that can contain continents country names or other geographic information
+    :return: Continent, country, extra information
+    """
     if pd.isna(location):
         return pd.NA, pd.NA, pd.NA
 
     continent, country, city = pd.NA, pd.NA, pd.NA
-    continents = ['Europe', 'North America', 'South America', 'Asia',
-                  'Oceana', 'Antarctica', 'Africa']
+    continents = ['Europe', 'North America', 'South America', 'Asia', 'Oceana', 'Antarctica', 'Africa']
     location = list(set(re.split('[:,]', location)))
     insdc_dict = read_insdc()
 
     found_country = False
     for item in location:
         item = item.strip()
-
         try:
             name_and_continent = insdc_dict[item]
         except KeyError:
             name_and_continent = [pd.NA, pd.NA]
-
         if not pd.isna(name_and_continent[0]):
             found_country = True
             country = name_and_continent[0]
             continent = name_and_continent[1]
-
         elif item in continents and not found_country:
             continent = item
         else:
             city = item
-
     return continent, country, city
 
 
