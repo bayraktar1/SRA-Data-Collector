@@ -106,84 +106,57 @@ def test_combine_columns():
     assert correct_df.equals(combine_columns(input_df, matches, new_name))
 
 
-def country_to_continent(country_name):
-    """
-    Converts the name of a country to the name of the continent it is located in
-    :param country_name: String with the name of the country
-    :return: String with the name of the continent
-    """
-    try:
-        country_alpha2 = pcc.country_name_to_country_alpha2(country_name)
-        continent_code = pcc.country_alpha2_to_continent_code(country_alpha2)
-        continent_name = pcc.convert_continent_code_to_continent_name(continent_code)
-    except KeyError:
-        print(f'ERROR: Country name not recognized by Pycountry. Continent set to NaN!')
-        continent_name = np.nan
-    return continent_name
-
-
-def test_country_to_continent():
-    assert country_to_continent('Netherlands') == 'Europe'
-    assert country_to_continent('United States of America') == 'North America'
-    assert country_to_continent('Japan') == 'Asia'
-    assert np.isnan(country_to_continent('united states'))
-    assert np.isnan(country_to_continent('dsadsad'))
-
-
-def get_country_name(code):
-    """
-    This function tries to convert the ISO2 or ISO3 country name to the full country name. If the entered code is not
-    a valid ISO2 or ISO3 code the input gets returned :param code: :return:
-    """
-    try:
-        # Try to get country by ISO2 or ISO3 code
-        country_code = pc.countries.get(alpha_2=code) or pc.countries.get(alpha_3=code)
-        return country_code.name
-    except AttributeError:
-        # If the code is not a valid ISO2 or ISO3 code, assume it's already a country name
-        return code
+def read_insdc():
+    insdc_dict = {}
+    with open('/home/bayraktar/PycharmProjects/reconstruct_plasmids_snakemake/insdc_country_or_area.csv') as file:
+        file.readline()  # skip header
+        for line in file:
+            line = line.strip().split(',')
+            insdc_dict[line[0]] = [line[0], line[1]]
+    return insdc_dict
 
 
 def clean_geo(location):
-    """
-    Cleans the combined location column. The function searches for country names in the string and infers the continent.
-    :param location: inconsistent string containing names of locations
-    :return: Three strings with the continent, country and city or nan values
-    """
-    # Issue with pycountry package where some country names don't match
-    # https://stackoverflow.com/questions/47919846/using-pycountry-to-check-for-name-common-name-official-name
+    if pd.isna(location):
+        return pd.NA, pd.NA, pd.NA
+
+    continent, country, city = pd.NA, pd.NA, pd.NA
     continents = ['Europe', 'North America', 'South America', 'Asia',
                   'Oceana', 'Antarctica', 'Africa']
+    location = list(set(re.split('[:,]', location)))
+    insdc_dict = read_insdc()
 
-    if pd.isna(location):
-        continent = np.nan
-        country = np.nan
-        city = np.nan
-    else:
-        countries = list(pc.countries)
-        country_names = [country.name for country in countries]
+    found_country = False
+    for item in location:
+        item = item.strip()
 
-        location = re.split('[:,]', location)
-        location = set(location)
-        location = list(location)
+        try:
+            name_and_continent = insdc_dict[item]
+        except KeyError:
+            name_and_continent = [pd.NA, pd.NA]
 
-        continent = np.nan
-        country = np.nan
-        city = np.nan
-        found_country = False
-        for item in location:
-            item = item.strip()
-            item = get_country_name(item)
-            if item in country_names:
-                country = item
-                continent = country_to_continent(item)
-                found_country = True
-            elif item in continents:
-                if not found_country:
-                    continent = item
-            else:
-                city = item
+        if not pd.isna(name_and_continent[0]):
+            found_country = True
+            country = name_and_continent[0]
+            continent = name_and_continent[1]
+
+        elif item in continents and not found_country:
+            continent = item
+        else:
+            city = item
+
     return continent, country, city
+
+
+def test_clean_geo():
+    assert clean_geo("Japan:Aichi") == ("Asia", "Japan", "Aichi")
+    assert clean_geo("Airag-nur,Mongolia") == ("Asia", "Mongolia", "Airag-nur")
+    assert clean_geo("Akerebiata,Nigeria") == ("Africa", "Nigeria", "Akerebiata")
+    assert clean_geo("Netherlands: Amsterdam") == ("Europe", "Netherlands", "Amsterdam")
+    assert clean_geo("Zambia") == ("Africa", "Zambia", pd.NA)
+    assert clean_geo("West Bank") == ("Asia", "West Bank", pd.NA)
+    assert clean_geo("South Africa, Gauteng") == ("Africa", "South Africa", "Gauteng")
+
 
 
 def clean_source(string):
