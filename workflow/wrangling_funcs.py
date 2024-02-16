@@ -3,8 +3,6 @@ Some functions for wrangling NCBI metadata
 """
 import pandas as pd
 import numpy as np
-import pycountry_convert as pcc
-import pycountry as pc
 import re
 
 
