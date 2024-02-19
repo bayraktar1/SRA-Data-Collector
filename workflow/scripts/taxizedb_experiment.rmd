@@ -1,0 +1,21 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(taxizedb)
+library(tidyverse)
+library(magrittr)
+library(feather)
+```
+
+```{r}
+taxon_id <- '543'
+```
+
+```{r}
+enterobacteriaceae_species <- taxizedb::downstream(taxon_id, db="ncbi", downto='species', verbose=FALSE)
+enterobacteriaceae_species
+```
+
