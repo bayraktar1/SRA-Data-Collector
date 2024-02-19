@@ -4,7 +4,9 @@ configfile: "config/config.yaml"
 rule all:
     input:
         # 'results/SRA.feather',
-        'results/metadata.csv'
+        # 'results/metadata.csv',
+        'logs/processed_stats_per_platform.ipynb'
+
 
 
 rule query_ncbi:
@@ -53,6 +55,21 @@ rule wrangle_metadata:
     #         -p pacbio_out {output.pacbio}) >{log} 2>&1
     #     '''
 
+rule platformm_stats:
+    """
+    Runs a Jupyter notebook that creates some statistics about the species in the metadata per sequencing platform/
+    """
+    input:
+        metadata = rules.wrangle_metadata.output.metadata
+    output:
+        # pdf = "results/stats.pdf",
+        notebook = "logs/processed_stats_per_platform.ipynb"
+    conda: "envs/stats_notebook.yml"
+    threads: 1
+    log: notebook="logs/processed_stats_per_platform.ipynb"
+    notebook: "notebooks/stats_per_platform.py.ipynb"
+
+
 rule download_files:
     """
     Downloads FASTA / FASTQ files for ID's collected in wrangle_metadata with SRAtools
@@ -63,7 +80,7 @@ rule download_files:
         download_dir = "results/SRA_downloads",
         platforms = config['download_platforms']
     output: "results/SRA_downloads/done.txt"
-    conda: "envs/"
+    conda: "envs/SRAtools.yml"
     threads: 6
     log: "logs/download_files.log"
     shell:
