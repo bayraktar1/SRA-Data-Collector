@@ -6,16 +6,27 @@ output: html_notebook
 ```{r}
 library(taxizedb)
 library(tidyverse)
-library(magrittr)
-library(feather)
+library(purrr)
 ```
 
 ```{r}
-taxon_id <- '543'
-```
+check_rank <- function (taxon_id) {
+  if (taxid2rank(taxon_id) == 'species') {
+    return(as.character(taxon_id))
+  } else {
+    down <- taxizedb::downstream(taxon_id, db="ncbi", downto='species', verbose=FALSE)
+    down_items <- unlist(down[[as.character(taxon_id)]][['childtaxa_id']])
+    return(down_items)
+  }
+}
 
-```{r}
-enterobacteriaceae_species <- taxizedb::downstream(taxon_id, db="ncbi", downto='species', verbose=FALSE)
-enterobacteriaceae_species
+taxon_ids <- user_input %>%
+        strsplit(" ") %>%
+        lapply(as.numeric) %>%
+        unlist() %>%
+        map(check_rank) %>%
+        unlist() %>%
+        paste(collapse = ', ')
+
 ```
 
