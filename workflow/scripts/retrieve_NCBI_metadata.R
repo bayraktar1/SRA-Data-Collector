@@ -1,12 +1,8 @@
 #!/usr/bin/Rscript
 
-# log <- file(snakemake@log[[1]], open="wt")
-# sink(log)
-
 library(SRAdb)
 library(taxizedb)
 library(tidyverse)
-library(magrittr)
 library(feather)
 library(argparse)
 
@@ -17,15 +13,9 @@ parser$add_argument('--output', '-o', help= 'Specify path to output feather file
 xargs<- parser$parse_args()
 
 database_loc <- xargs$database
-received_taxon_id <- xargs$taxon_id
+user_input <- xargs$taxon_id
 output <- xargs$output
 
-# database_loc <- snakemake@config[["database"]]
-# received_taxon_id <- snakemake@config[["taxon_id"]]
-# output <- snakemake@output[[1]]
-
-cat("Database location:", database_loc, "\n")
-cat("Output file:", output, "\n")
 
 if (file.exists(database_loc)) {
   cat("Database file specified. \n")
@@ -36,12 +26,26 @@ if (file.exists(database_loc)) {
   # https://gbnci.cancer.gov/backup/
   sqlfile <- getSRAdbFile()
 }
-
 sra_con <- dbConnect(SQLite(),sqlfile)
-cat('Established connection to DB file. \n')
 
-enterobacteriaceae_species <- taxizedb::downstream(received_taxon_id, db="ncbi", downto='species', verbose=FALSE)
-cat('retrieved species IDs. \n')
+
+check_rank <- function (taxon_id) {
+  if (taxid2rank(taxon_id) == 'species') {
+    return(as.character(taxon_id))
+  } else {
+    down <- taxizedb::downstream(taxon_id, db="ncbi", downto='species', verbose=FALSE)
+    down_items <- unlist(down[[as.character(taxon_id)]][['childtaxa_id']])
+    return(down_items)
+  }
+}
+
+taxon_ids <- user_input %>%
+  strsplit(" ") %>%
+  lapply(as.numeric) %>%
+  unlist() %>%
+  map(check_rank) %>%
+  unlist() %>%
+  paste(collapse = ', ')
 
 
 sql_query <- sprintf(
@@ -54,9 +58,10 @@ sql_query <- sprintf(
       (platform = 'ILLUMINA' AND library_layout = 'PAIRED - ')
       OR platform = 'OXFORD_NANOPORE'
       OR platform = 'PACBIO_SMRT'
-    );", paste(unlist(enterobacteriaceae_species[[received_taxon_id]][['childtaxa_id']]), collapse = ", "))
+    );", taxon_ids)
 
 cat('Running query... \n')
+# This can take a while...
 sra_info <- dbGetQuery(sra_con, sql_query)
 cat('Finished query! \n')
 
@@ -64,10 +69,8 @@ sra_df <- sra_info %>%
   as_tibble() %>%
   mutate_at(vars(taxon_id), list(scientific_name = ~taxid2name(.))) %>%
   dplyr::select(-which(apply(is.na(.), 2, all)))
-cat('Cleaned df. \n')
 
 write_feather(sra_df, output)
 cat('Wrote file, \n')
 
 dbDisconnect(sra_con)
-cat('disconnected from db. \n')
