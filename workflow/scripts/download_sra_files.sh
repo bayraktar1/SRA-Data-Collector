@@ -78,10 +78,15 @@ input_path=$(realpath -e "${input}") || exit
 # Download files from SRA                                  #
 ############################################################
 
+# if prefetch fails we can run the command again to continue where the download left of
+# how do we know if the download failed?
+# we can test the downloaded data with vdb-validate
+
 download () {
     echo "${1}" "${2}" "${3}"
     mkdir -p "${2}"/"${3}" && cd "$_" || exit
     prefetch "${1}"
+    vdb-validate "${1}"
     fasterq-dump "${1}" # Uses six threads by default
     gzip ./*.fastq
     mv "${1}"*.* "${1}"
