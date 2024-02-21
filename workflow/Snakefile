@@ -55,7 +55,7 @@ rule wrangle_metadata:
     #         -p pacbio_out {output.pacbio}) >{log} 2>&1
     #     '''
 
-rule platformm_stats:
+rule platform_stats:
     """
     Runs a Jupyter notebook that creates some statistics about the species in the metadata per sequencing platform/
     """
