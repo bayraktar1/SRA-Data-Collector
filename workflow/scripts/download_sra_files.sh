@@ -24,6 +24,9 @@ show_help() {
 
 output="SRA_downloads"
 input="results/metadata.csv"
+illumina=false
+nanopore=false
+pacbio=false
 
 ############################################################
 # Process the input                                        #
@@ -33,7 +36,7 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-while getopts "ho:f:i:n:p" option; do
+while getopts "ho:f:inp" option; do
    case $option in
       h) # display Help
          show_help
