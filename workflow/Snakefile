@@ -5,7 +5,8 @@ rule all:
     input:
         # 'results/SRA.feather',
         # 'results/metadata.csv',
-        'logs/processed_stats_per_platform.ipynb'
+        'logs/processed_stats_per_platform.ipynb',
+        'results/SRA_downloads/done.txt'
 
 
 
@@ -22,6 +23,11 @@ rule query_ncbi:
     conda: "envs/Renv.yml"
     log: "logs/query_ncbi.log"
     threads: 1
+    resources:
+        runtime=60,
+        partition="cpu",
+        ntasks=1,
+        cpus_per_task=1
     shell:
         r'''
         (workflow/scripts/retrieve_NCBI_metadata.R \
@@ -43,17 +49,14 @@ rule wrangle_metadata:
         clean_tsv = 'results/clean_tsv.tsv'
     conda: "envs/NCBI_metadata_notebook.yml"
     threads: 1
+    resources:
+        runtime=60,
+        partition="cpu",
+        ntasks=1,
+        cpus_per_task=1
     log: notebook="logs/processed_notebook.ipynb"
     notebook: "notebooks/wrangle_NCBI_metadata.py.ipynb"
-    # log: "logs/wrangle_ncbi_metadata.log"
-    # shell:
-    #     '''
-    #     (papermill workflow/notebooks/wrangle_NCBI_metadata.py.ipynb \
-    #         -p file_path {input.feather_file} \
-    #         -p illumina_out {output.illumina} \
-    #         -p nanopore_out {output.nanopore} \
-    #         -p pacbio_out {output.pacbio}) >{log} 2>&1
-    #     '''
+
 
 rule platform_stats:
     """
@@ -66,6 +69,11 @@ rule platform_stats:
         notebook = "logs/processed_stats_per_platform.ipynb"
     conda: "envs/stats_notebook.yml"
     threads: 1
+    resources:
+        runtime=60,
+        partition="cpu",
+        ntasks=1,
+        cpu_per_task=1
     log: notebook="logs/processed_stats_per_platform.ipynb"
     notebook: "notebooks/stats_per_platform.py.ipynb"
 
@@ -82,6 +90,11 @@ rule download_files:
     output: "results/SRA_downloads/done.txt"
     conda: "envs/SRAtools.yml"
     threads: 6
+    resources:
+        runtime=1440,
+        partition="cpu",
+        ntasks=1,
+        cpus_per_task=6
     log: "logs/download_files.log"
     shell:
         '''
@@ -91,13 +104,3 @@ rule download_files:
             {params.platforms}
         ) >{log} 2>&1'''
 
-# rule download_files:
-#     input:
-#         metadata = rules.wrangle_metadata.output.clean_tsv
-#     output:
-#         directory("results/downloads"),
-#         expand("results/downloads/{sample}.fastq.gz", sample=expand("{sample}", sample=open("accessions.txt").read().strip().split()))
-#     params:
-#         sra_accession=lambda wildcards: wildcards.sample
-#     shell:
-#         "cat {input} | xargs -I {{}} fastq-dump --outdir downloads/ --split-files {{}}"
