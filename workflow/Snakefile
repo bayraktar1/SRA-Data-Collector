@@ -47,7 +47,7 @@ rule wrangle_metadata:
     output:
         metadata = 'results/metadata.csv',
         clean_tsv = 'results/clean_tsv.tsv'
-    conda: "envs/NCBI_metadata_notebook.yml"
+    conda: "envs/metadata_notebook.yaml"
     threads: 1
     resources:
         runtime=60,
