@@ -2,40 +2,34 @@ configfile: "config/config.yaml"
 
 
 import pandas as pd
-from pathlib import Path
 
-samples = []
-for dir_path in Path('/hpc/dla_mm/dbayraktar/data/reconstruct_plasmids_snakemake/results/SRA_downloads').glob('*/illumina/*/'):
-    fastqs = [fastq.resolve() for fastq in dir_path.glob('*.fastq.gz')]
-    fastqs.sort()
-
-    sample_info = {
-        'Sample': dir_path.parts[-1],
-        'Species': dir_path.parts[-3],
-        'R1': fastqs[0],
-        'R2': fastqs[1]
-    }
-    samples.append(sample_info)
-sample_df = pd.DataFrame(data=samples)
+sample_df = pd.read_csv(config['metadata_tsv'], sep='\t')
+sample_df = sample_df.set_index('run_accession')
+sample_df = sample_df.convert_dtypes()
+paired = sample_df[(sample_df['platform'] == "ILLUMINA")]
+single = sample_df[(sample_df['platform'] == "PACBIO_SMRT") | (sample_df['platform'] == "OXFORD_NANOPORE")]
 
 
 
 rule all:
     input:
-        expand('results/SRA_downloads/{scientific_name}/{platform}/{accession}',
+        expand('results/SRA_downloads/{scientific_name}/{platform}/{accession}/{accession}_{pair}.fastq.gz',
             zip,
-            scientific_name=sample_df['scientific_name'].values,
-            platform=sample_df['platform'].values),
-            accesssion = sample_df['run_accession'].values
+            scientific_name=paired['scientific_name'].values,
+            platform=paired['platform'].values,
+            accession = list(paired.index),
+            pair=[1,2]),
+
+        expand('results/SRA_downloads/{scientific_name}/{platform}/{accession}/{accession}.fastq.gz',
+            zip,
+            scientific_name=single['scientific_name'].values,
+            platform=single['platform'].values,
+            accession = list(single.index))
 
 
 rule download:
-    input:
-        "{scientific_name}",
-        "{platform}",
-        "{accession}"
     output:
-        "results/SRA_downloads/{scientific_name}/{platform}/{accession}.sra"
+        "results/SRA_downloads/{scientific_name}/{platform}/{accession}/{accession}.sra"
     shell:
         """
         mkdir -p "results/SRA_downloads/{wildcards.scientific_name}/{wildcards.platform}/{wildcards.accession}" && cd "$_" || exit
@@ -44,15 +38,53 @@ rule download:
         """
 
 
-rule fasterq_dump:
+rule fasterq_dump_pe:
     input:
-        "results/SRA_downloads/{scientific_name}/{platform}/{accession}.sra"
+        "results/SRA_downloads/{scientific_name}/{platform}/{accession}/{accession}.sra"
     output:
-        "results/SRA_downloads/{scientific_name}/{platform}/{accession}_1.fastq.gz",
-        "results/SRA_downloads/{scientific_name}/{platform}/{accession}_2.fastq.gz",
+        "results/SRA_downloads/{scientific_name}/{platform}/{accession}/{accession}_1.fastq.gz",
+        "results/SRA_downloads/{scientific_name}/{platform}/{accession}/{accession}_2.fastq.gz",
     shell:
         """
         cd "results/SRA_downloads/{wildcards.scientific_name}/{wildcards.platform}/{wildcards.accession}"
         fasterq-dump {wildcards.accession}
         gzip ./*.fastq
         """
+
+rule fasterq_dump_se:
+    input:
+        "results/SRA_downloads/{scientific_name}/{platform}/{accession}/{accession}.sra"
+    output:
+        "results/SRA_downloads/{scientific_name}/{platform}/{accession}/{accession}.fastq.gz",
+    shell:
+        """
+        cd "results/SRA_downloads/{wildcards.scientific_name}/{wildcards.platform}/{wildcards.accession}"
+        fasterq-dump {wildcards.accession}
+        gzip ./*.fastq
+        """
+
+
+rule get_fastq_pe_gz:
+    output:
+        # the wildcard name must be accession, pointing to an SRA number
+        "data/pe/{accession}_1.fastq.gz",
+        "data/pe/{accession}_2.fastq.gz",
+    log:
+        "logs/pe/{accession}.gz.log"
+    params:
+        extra="--skip-technical"
+    threads: 6  # defaults to 6
+    wrapper:
+        "v3.4.0-25-g0e80586/bio/sra-tools/fasterq-dump"
+
+
+rule get_fastq_se_gz:
+    output:
+        "data/se/{accession}.fastq.gz"
+    log:
+        "logs/se/{accession}.gz.log"
+    params:
+        extra="--skip-technical"
+    threads: 6
+    wrapper:
+        "v3.4.0-25-g0e80586/bio/sra-tools/fasterq-dump"
