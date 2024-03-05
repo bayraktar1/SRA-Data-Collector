@@ -28,6 +28,9 @@ rule all:
 
 
 rule download:
+    """
+    Download .SRA files from NCBI with SRAtools and validate them
+    """
     output:
         "results/SRA_downloads/{scientific_name}/{platform}/{accession}/{accession}.sra"
     conda: "envs/SRAtools.yml"
@@ -42,6 +45,9 @@ rule download:
 
 
 rule fasterq_dump_pe:
+    """
+    Convert .SRA files to paired fastq files and gzip them
+    """
     input:
         "results/SRA_downloads/{scientific_name}/{platform}/{accession}/{accession}.sra"
     output:
@@ -58,6 +64,9 @@ rule fasterq_dump_pe:
         ) >{log} 2>&1"""
 
 rule fasterq_dump_se:
+    """
+    Convert .SRA files to single end fastq files and gzip them
+    """
     input:
         "results/SRA_downloads/{scientific_name}/{platform}/{accession}/{accession}.sra"
     output:
