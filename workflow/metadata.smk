@@ -3,10 +3,8 @@ configfile: "config/config.yaml"
 
 rule all:
     input:
-        # 'results/SRA.feather',
-        # 'results/metadata.csv',
+        'results/metadata.csv',
         'logs/processed_stats_per_platform.ipynb',
-        'results/SRA_downloads/done.txt'
 
 
 
