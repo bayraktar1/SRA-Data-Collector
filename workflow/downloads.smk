@@ -31,7 +31,7 @@ rule download:
     output:
         "results/SRA_downloads/{scientific_name}/{platform}/{accession}/{accession}.sra"
     conda: "envs/SRAtools.yml"
-    log: "logs/download_{scientific_name}_{platform}_{accession}.log"
+    log: "logs/download/{scientific_name}_{platform}_{accession}.log"
     threads: 1
     shell:
         """(
@@ -48,7 +48,7 @@ rule fasterq_dump_pe:
         "results/SRA_downloads/{scientific_name}/{platform}/{accession}/{accession}_1.fastq.gz",
         "results/SRA_downloads/{scientific_name}/{platform}/{accession}/{accession}_2.fastq.gz",
     conda: "envs/SRAtools.yml"
-    log: "logs/fasterq_dump_pe_{scientific_name}_{platform}_{accession}.log"
+    log: "logs/fasterq_dump_pe/{scientific_name}_{platform}_{accession}.log"
     threads: 6
     shell:
         """(
@@ -63,7 +63,7 @@ rule fasterq_dump_se:
     output:
         "results/SRA_downloads/{scientific_name}/{platform}/{accession}/{accession}.fastq.gz",
     conda: "envs/SRAtools.yml"
-    log: "logs/fasterq_dump_se_{scientific_name}_{platform}_{accession}.log"
+    log: "logs/fasterq_dump_se/{scientific_name}_{platform}_{accession}.log"
     threads: 6
     shell:
         """(
