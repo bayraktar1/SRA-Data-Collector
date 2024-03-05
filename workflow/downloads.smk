@@ -30,12 +30,15 @@ rule all:
 rule download:
     output:
         "results/SRA_downloads/{scientific_name}/{platform}/{accession}/{accession}.sra"
+    conda: "envs/SRAtools.yml"
+    log: "logs/download_{scientific_name}_{platform}_{accession}.log"
+    threads: 1
     shell:
-        """
-        mkdir -p "results/SRA_downloads/{wildcards.scientific_name}/{wildcards.platform}/{wildcards.accession}" && cd "$_" || exit
+        """(
+        mkdir -p "results/SRA_downloads/{wildcards.scientific_name}/{wildcards.platform}" && cd "$_" || exit
         prefetch "{wildcards.accession}"
         vdb-validate "{wildcards.accession}"
-        """
+        ) >{log} 2>&1"""
 
 
 rule fasterq_dump_pe:
@@ -44,47 +47,27 @@ rule fasterq_dump_pe:
     output:
         "results/SRA_downloads/{scientific_name}/{platform}/{accession}/{accession}_1.fastq.gz",
         "results/SRA_downloads/{scientific_name}/{platform}/{accession}/{accession}_2.fastq.gz",
+    conda: "envs/SRAtools.yml"
+    log: "logs/fasterq_dump_pe_{scientific_name}_{platform}_{accession}.log"
+    threads: 6
     shell:
-        """
+        """(
         cd "results/SRA_downloads/{wildcards.scientific_name}/{wildcards.platform}/{wildcards.accession}"
         fasterq-dump {wildcards.accession}
         gzip ./*.fastq
-        """
+        ) >{log} 2>&1"""
 
 rule fasterq_dump_se:
     input:
         "results/SRA_downloads/{scientific_name}/{platform}/{accession}/{accession}.sra"
     output:
         "results/SRA_downloads/{scientific_name}/{platform}/{accession}/{accession}.fastq.gz",
+    conda: "envs/SRAtools.yml"
+    log: "logs/fasterq_dump_se_{scientific_name}_{platform}_{accession}.log"
+    threads: 6
     shell:
-        """
+        """(
         cd "results/SRA_downloads/{wildcards.scientific_name}/{wildcards.platform}/{wildcards.accession}"
         fasterq-dump {wildcards.accession}
         gzip ./*.fastq
-        """
-
-
-rule get_fastq_pe_gz:
-    output:
-        # the wildcard name must be accession, pointing to an SRA number
-        "data/pe/{accession}_1.fastq.gz",
-        "data/pe/{accession}_2.fastq.gz",
-    log:
-        "logs/pe/{accession}.gz.log"
-    params:
-        extra="--skip-technical"
-    threads: 6  # defaults to 6
-    wrapper:
-        "v3.4.0-25-g0e80586/bio/sra-tools/fasterq-dump"
-
-
-rule get_fastq_se_gz:
-    output:
-        "data/se/{accession}.fastq.gz"
-    log:
-        "logs/se/{accession}.gz.log"
-    params:
-        extra="--skip-technical"
-    threads: 6
-    wrapper:
-        "v3.4.0-25-g0e80586/bio/sra-tools/fasterq-dump"
+        ) >{log} 2>&1"""
