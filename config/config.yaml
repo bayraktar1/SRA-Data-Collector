@@ -1,6 +1,6 @@
 # Location of database if already downloaded
-database: "/home/bayraktar/PycharmProjects/reconstruct_plasmids_snakemake/Data/SRAmetadb.sqlite"
+database: "../Data/SRAmetadb.sqlite"
 # NCBI taxon ID
-taxon_id: "'543 67827'"
+taxon_id: "'624'"
 # -i: download Illumina, -n download Nanopore, -p download Pacbio
-download_platforms: "-i"
+#download_platforms: "-i"

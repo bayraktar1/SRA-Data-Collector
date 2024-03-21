@@ -110,7 +110,7 @@ def read_insdc():
     :return: {'Country/Area': ['Country/Area', 'Continent']}
     """
     insdc_dict = {}
-    with open('/home/bayraktar/PycharmProjects/reconstruct_plasmids_snakemake/insdc_country_or_area.csv') as file:
+    with open('../Data/insdc_country_or_area.csv') as file:
         file.readline()  # skip header
         for line in file:
             line = line.strip().split(',')
