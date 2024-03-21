@@ -160,32 +160,21 @@ def test_clean_geo():
     assert clean_geo("South Africa, Gauteng") == ("Africa", "South Africa", "Gauteng")
 
 
-
 def clean_source(string):
     """
     Removes duplicates and numeric strings from the combined isolation source column
     :param string: String with potential duplicate words and numeric strings
     :return: Clean unique strings seperated by commas
     """
-    # print(f"Input string: {string}")
     if pd.isna(string):
         result = np.nan
     else:
         string = string.strip().split(',')
-        # print(f"After splitting: {string}")
         string = set(string)
-        # print(f"After removing duplicates: {string}")
         string = list(string)
-        # print(f"After converting to list: {string}")
-        # Use list comprehension to filter out strings containing any numeric characters
         result = [item for item in string if not any(char.isdigit() for char in item)]
-        # print(f"After filtering: {result}")
         if len(result) == 0:
-            # print(result)
             result = np.nan
         else:
             result = ','.join(result)
-    # print(f"Final result: {result}")
-    # if not result:
-    #     print("Final string is empty!=====================")
     return result
