@@ -1,4 +1,4 @@
-configfile: "config/config.yaml"
+configfile: "config/metadata.yaml"
 
 
 rule all:

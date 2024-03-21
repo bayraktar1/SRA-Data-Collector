@@ -1,4 +1,4 @@
-configfile: "config/config.yaml"
+configfile: "config/downloads.yaml"
 
 
 import pandas as pd
