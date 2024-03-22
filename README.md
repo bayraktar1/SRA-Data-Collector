@@ -7,7 +7,7 @@ git clone https://github.com/bayraktar1/reconstruct_plasmids_snakemake.git
 cd reconstruct_plasmids_snakemake
 
 # optioneel, maar de package die de NCBI SRAdb hoort te downloaden faalt vaak dus dit is consistenter
-wget -p Data/ https://gbnci.cancer.gov/backup/SRAmetadb.sqlite.gz | gzip -d SRAmetadb.sqlite.gz
+wget https://gbnci.cancer.gov/backup/SRAmetadb.sqlite.gz -P Data/ && gzip -d Data/SRAmetadb.sqlite.gz
 
 snakemake --executor slurm -j 20 --default-resources slurm_account=dla_mm slurm_partition=cpu --use-conda --conda-frontend mamba --latency-wait 60 --printshellcmds
 ```
@@ -20,7 +20,7 @@ cd reconstruct_plasmids_snakemake
 gitcheckout separate_flows
 
 # optioneel, maar de package die de NCBI SRAdb hoort te downloaden faalt vaak dus dit is consistenter
-wget -p Data/ https://gbnci.cancer.gov/backup/SRAmetadb.sqlite.gz | gzip -d SRAmetadb.sqlite.gz
+wget https://gbnci.cancer.gov/backup/SRAmetadb.sqlite.gz -P Data/ && gzip -d Data/SRAmetadb.sqlite.gz
 
 snakemake -s workflow/metadata.smk --executor slurm -j 20 --default-resources slurm_account=dla_mm slurm_partition=cpu --use-conda --conda-frontend mamba --latency-wait 60 --printshellcmds
 snakemake -s workflow/download.smk --executor slurm -j 20 --default-resources slurm_account=dla_mm slurm_partition=cpu --use-conda --conda-frontend mamba --latency-wait 60 --printshellcmds
