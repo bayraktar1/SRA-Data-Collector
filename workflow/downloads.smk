@@ -4,27 +4,32 @@ configfile: "config/downloads.yaml"
 import pandas as pd
 
 sample_df = pd.read_csv(config['metadata_tsv'], sep='\t')
-sample_df = sample_df.set_index('run_accession')
 sample_df = sample_df.convert_dtypes()
-paired = sample_df[(sample_df['platform'] == "ILLUMINA")]
-single = sample_df[(sample_df['platform'] == "PACBIO_SMRT") | (sample_df['platform'] == "OXFORD_NANOPORE")]
+
+
+def generate_file_paths(df):
+    """
+    Generate file paths based on the DataFrame.
+    :param df: A pandas DataFrame with columns 'scientific_name', 'platform', and 'run_accession'
+    :return: A list of file paths
+    """
+    file_paths = []
+    for index, row in df.iterrows():
+        if row['platform'] == "ILLUMINA":
+            for pair in [1, 2]:
+                file_path = f"results/SRA_downloads/{row['scientific_name']}/{row['platform']}/{row['run_accession']}/{row['run_accession']}_{pair}.fastq.gz"
+                file_paths.append(file_path)
+        else:
+            file_path = f"results/SRA_downloads/{row['scientific_name']}/{row['platform']}/{row['run_accession']}/{row['run_accession']}.fastq.gz"
+            file_paths.append(file_path)
+
+    return file_paths
 
 
 
 rule all:
     input:
-        expand('results/SRA_downloads/{scientific_name}/{platform}/{accession}/{accession}_{pair}.fastq.gz',
-            zip,
-            scientific_name=paired['scientific_name'].values,
-            platform=paired['platform'].values,
-            accession = list(paired.index),
-            pair=[1,2]),
-
-        expand('results/SRA_downloads/{scientific_name}/{platform}/{accession}/{accession}.fastq.gz',
-            zip,
-            scientific_name=single['scientific_name'].values,
-            platform=single['platform'].values,
-            accession = list(single.index))
+        generate_file_paths(sample_df)
 
 
 rule download:
