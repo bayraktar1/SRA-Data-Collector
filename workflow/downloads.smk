@@ -36,6 +36,11 @@ rule download:
     conda: "envs/SRAtools.yml"
     log: "logs/download/{scientific_name}_{platform}_{accession}.log"
     threads: 1
+    resources:
+        runtime=60,
+        partition="cpu",
+        ntasks=1,
+        cpus_per_task=1
     shell:
         """(
         mkdir -p "results/SRA_downloads/{wildcards.scientific_name}/{wildcards.platform}" && cd "$_" || exit
@@ -56,6 +61,11 @@ rule fasterq_dump_pe:
     conda: "envs/SRAtools.yml"
     log: "logs/fasterq_dump_pe/{scientific_name}_{platform}_{accession}.log"
     threads: 6
+    resources:
+        runtime=60,
+        partition="cpu",
+        ntasks=1,
+        cpus_per_task=6
     shell:
         """(
         cd "results/SRA_downloads/{wildcards.scientific_name}/{wildcards.platform}/{wildcards.accession}"
@@ -74,6 +84,11 @@ rule fasterq_dump_se:
     conda: "envs/SRAtools.yml"
     log: "logs/fasterq_dump_se/{scientific_name}_{platform}_{accession}.log"
     threads: 6
+    resources:
+        runtime=60,
+        partition="cpu",
+        ntasks=1,
+        cpus_per_task=6
     shell:
         """(
         cd "results/SRA_downloads/{wildcards.scientific_name}/{wildcards.platform}/{wildcards.accession}"
