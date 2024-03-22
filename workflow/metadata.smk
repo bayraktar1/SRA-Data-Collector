@@ -9,10 +9,10 @@ rule all:
 
 rule download_SRAdb:
     output:
-        "../Data/SRAmetadb.sqlite"
+        "Data/SRAmetadb.sqlite"
     shell:
         '''
-        wget https://gbnci.cancer.gov/backup/SRAmetadb.sqlite.gz -P ../Data/ && gzip -d ../Data/SRAmetadb.sqlite.gz
+        wget https://gbnci.cancer.gov/backup/SRAmetadb.sqlite.gz -P Data/ && gzip -d Data/SRAmetadb.sqlite.gz
         '''
 
 rule query_ncbi:
