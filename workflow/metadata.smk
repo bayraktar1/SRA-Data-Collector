@@ -1,20 +1,27 @@
-configfile: "config/config.yaml"
+configfile: "config/metadata.yaml"
 
 
 rule all:
     input:
-        # 'results/SRA.feather',
-        # 'results/metadata.csv',
+        'results/metadata.csv',
         'logs/processed_stats_per_platform.ipynb',
-        'results/SRA_downloads/done.txt'
 
 
+rule download_SRAdb:
+    output:
+        "Data/SRAmetadb.sqlite"
+    shell:
+        '''
+        wget https://gbnci.cancer.gov/backup/SRAmetadb.sqlite.gz -P Data/ && gzip -d Data/SRAmetadb.sqlite.gz
+        '''
 
 rule query_ncbi:
     """
     Download or use already present NCBI SRA database dump to 
     query for SRA samples
     """
+    input:
+        database = rules.download_SRAdb.output
     output:
         feather_file = "results/SRA.feather"
     params:
@@ -31,7 +38,7 @@ rule query_ncbi:
     shell:
         r'''
         (workflow/scripts/retrieve_NCBI_metadata.R \
-            --database {params.database} \
+            --database {input.database} \
             --taxon_id {params.taxon} \
             --output {output.feather_file}) >{log} 2>&1
         '''
