@@ -10,10 +10,17 @@ rule all:
 rule download_SRAdb:
     output:
         "Data/SRAmetadb.sqlite"
+    log: "logs/download_SRAdb.log"
+    threads: 1
+    resources:
+        runtime=60,
+        partition="cpu",
+        ntasks=1,
+        cpus_per_task=1
     shell:
-        '''
+        '''(
         wget https://gbnci.cancer.gov/backup/SRAmetadb.sqlite.gz -P Data/ && gzip -d Data/SRAmetadb.sqlite.gz
-        '''
+        ) >{log} 2>&1'''
 
 rule query_ncbi:
     """
