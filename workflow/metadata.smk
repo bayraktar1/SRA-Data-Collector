@@ -7,12 +7,21 @@ rule all:
         'logs/processed_stats_per_platform.ipynb',
 
 
+rule download_SRAdb:
+    output:
+        "../Data/SRAmetadb.sqlite"
+    shell:
+        '''
+        wget https://gbnci.cancer.gov/backup/SRAmetadb.sqlite.gz -P ../Data/ && gzip -d ../Data/SRAmetadb.sqlite.gz
+        '''
 
 rule query_ncbi:
     """
     Download or use already present NCBI SRA database dump to 
     query for SRA samples
     """
+    input:
+        database = rules.download_SRAdb.output
     output:
         feather_file = "results/SRA.feather"
     params:
@@ -29,7 +38,7 @@ rule query_ncbi:
     shell:
         r'''
         (workflow/scripts/retrieve_NCBI_metadata.R \
-            --database {params.database} \
+            --database {input.database} \
             --taxon_id {params.taxon} \
             --output {output.feather_file}) >{log} 2>&1
         '''
@@ -76,29 +85,29 @@ rule platform_stats:
     notebook: "notebooks/stats_per_platform.py.ipynb"
 
 
-# rule download_files:
-#     """
-#     Downloads FASTA / FASTQ files for ID's collected in wrangle_metadata with SRAtools
-#     """
-#     input:
-#         metadata = rules.wrangle_metadata.output.clean_tsv
-#     params:
-#         download_dir = "results/SRA_downloads",
-#         platforms = config['download_platforms']
-#     output: "results/SRA_downloads/done.txt"
-#     conda: "envs/SRAtools.yml"
-#     threads: 6
-#     resources:
-#         runtime=1440,
-#         partition="cpu",
-#         ntasks=1,
-#         cpus_per_task=6
-#     log: "logs/download_files.log"
-#     shell:
-#         '''
-#         (bash workflow/scripts/download_sra_files.sh \
-#             -f {input.metadata} \
-#             -o {params.download_dir} \
-#             {params.platforms}
-#         ) >{log} 2>&1'''
+rule download_files:
+    """
+    Downloads FASTA / FASTQ files for ID's collected in wrangle_metadata with SRAtools
+    """
+    input:
+        metadata = rules.wrangle_metadata.output.clean_tsv
+    params:
+        download_dir = "results/SRA_downloads",
+        platforms = config['download_platforms']
+    output: "results/SRA_downloads/done.txt"
+    conda: "envs/SRAtools.yml"
+    threads: 6
+    resources:
+        runtime=1440,
+        partition="cpu",
+        ntasks=1,
+        cpus_per_task=6
+    log: "logs/download_files.log"
+    shell:
+        '''
+        (bash workflow/scripts/download_sra_files.sh \
+            -f {input.metadata} \
+            -o {params.download_dir} \
+            {params.platforms}
+        ) >{log} 2>&1'''
 
