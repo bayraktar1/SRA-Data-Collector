@@ -44,6 +44,8 @@ rule download:
     resources:
         runtime=60,
         partition="cpu",
+        mem_mb=8000,
+        max_mb=16000,
         ntasks=1,
         cpus_per_task=1
     shell:
@@ -69,6 +71,8 @@ rule fasterq_dump_pe:
     resources:
         runtime=60,
         partition="cpu",
+        mem_mb=4000,
+        max_mb=8000,
         ntasks=1,
         cpus_per_task=6
     shell:
@@ -92,6 +96,8 @@ rule fasterq_dump_se:
     resources:
         runtime=60,
         partition="cpu",
+        mem_mb=4000,
+        max_mb=8000,
         ntasks=1,
         cpus_per_task=6
     shell:
