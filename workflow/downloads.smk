@@ -51,7 +51,7 @@ rule download:
     shell:
         """(
         mkdir -p "results/SRA_downloads/{wildcards.scientific_name}/{wildcards.platform}" && cd "$_" || exit
-        prefetch "{wildcards.accession}"
+        prefetch --force all "{wildcards.accession}"
         vdb-validate "{wildcards.accession}"
         ) >{log} 2>&1"""
 
