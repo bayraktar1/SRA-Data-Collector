@@ -1,0 +1,21 @@
+# Profile for running metadata.smk via SLURM
+snakefile: workflow/metadata.smk
+use-conda: true
+conda-frontend: mamba
+latency-wait: 60
+keep-going: false
+printshellcmds: true
+jobs: 20
+cluster:
+  mkdir -p logs/{rule} &&
+  sbatch 
+    --account=dla_mm
+    --partition=cpu
+    --time={resources.runtime_min}
+    --cpus-per-task={threads}
+    --mem={resources.mem_mb}
+    --job-name=reconstruction.{wildcards}.{rule}
+    -o logs/{rule}/{rule}_{wildcards}_%j.out 
+    -e logs/{rule}/{rule}_{wildcards}_%j.err
+default-resources:
+  - partition=cpu
