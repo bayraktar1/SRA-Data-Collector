@@ -10,7 +10,7 @@ rule all:
 rule download_SRAdb:
     output:
         "Data/SRAmetadb.sqlite"
-    log: "logs/download_SRAdb.log"
+    log: "logs/download_db/download_SRAdb.log"
     threads: 1
     resources:
         runtime=60,
@@ -35,7 +35,7 @@ rule query_ncbi:
         database = config['database'],
         taxon = config['taxon_id']
     conda: "envs/Renv.yml"
-    log: "logs/query_ncbi.log"
+    log: "logs/query_ncbi/query_ncbi.log"
     threads: 1
     resources:
         runtime=60,
@@ -68,7 +68,7 @@ rule wrangle_metadata:
         partition="cpu",
         ntasks=1,
         cpus_per_task=1
-    log: notebook="logs/processed_notebook.ipynb"
+    log: notebook="logs/wrangle_metadata/processed_notebook.ipynb"
     notebook: "notebooks/wrangle_NCBI_metadata.py.ipynb"
 
 
@@ -87,7 +87,7 @@ rule platform_stats:
         partition="cpu",
         ntasks=1,
         cpu_per_task=1
-    log: notebook="logs/processed_stats_per_platform.ipynb"
+    log: notebook="logs/process_stats/processed_stats_per_platform.ipynb"
     notebook: "notebooks/stats_per_platform.py.ipynb"
 
 
