@@ -91,29 +91,31 @@ rule platform_stats:
     notebook: "notebooks/stats_per_platform.py.ipynb"
 
 
-rule download_files:
-    """
-    Downloads FASTA / FASTQ files for ID's collected in wrangle_metadata with SRAtools
-    """
-    input:
-        metadata = rules.wrangle_metadata.output.clean_tsv
-    params:
-        download_dir = "results/SRA_downloads",
-        platforms = config['download_platforms']
-    output: "results/SRA_downloads/done.txt"
-    conda: "envs/SRAtools.yml"
-    threads: 6
-    resources:
-        runtime=1440,
-        partition="cpu",
-        ntasks=1,
-        cpus_per_task=6
-    log: "logs/download_files.log"
-    shell:
-        '''
-        (bash workflow/scripts/download_sra_files.sh \
-            -f {input.metadata} \
-            -o {params.download_dir} \
-            {params.platforms}
-        ) >{log} 2>&1'''
+# This rule is superseded by the downloads.smk and should not be used
+
+    # rule download_files:
+#     """
+#     Downloads FASTA / FASTQ files for ID's collected in wrangle_metadata with SRAtools
+#     """
+#     input:
+#         metadata = rules.wrangle_metadata.output.clean_tsv
+#     params:
+#         download_dir = "results/SRA_downloads",
+#         platforms = config['download_platforms']
+#     output: "results/SRA_downloads/done.txt"
+#     conda: "envs/SRAtools.yml"
+#     threads: 6
+#     resources:
+#         runtime=1440,
+#         partition="cpu",
+#         ntasks=1,
+#         cpus_per_task=6
+#     log: "logs/download_files.log"
+#     shell:
+#         '''
+#         (bash workflow/scripts/download_sra_files.sh \
+#             -f {input.metadata} \
+#             -o {params.download_dir} \
+#             {params.platforms}
+#         ) >{log} 2>&1'''
 

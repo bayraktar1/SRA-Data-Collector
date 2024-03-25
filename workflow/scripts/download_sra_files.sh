@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Download files from NCBI.
 
+# This script is superseded by the downloads.smk pipeline and should not be used as a part of the pipeline
+
+
+
 ############################################################
 # Help                                                     #
 ############################################################
@@ -78,9 +82,6 @@ input_path=$(realpath -e "${input}") || exit
 # Download files from SRA                                  #
 ############################################################
 
-# if prefetch fails we can run the command again to continue where the download left of
-# how do we know if the download failed?
-# we can test the downloaded data with vdb-validate
 
 download () {
     echo "${1}" "${2}" "${3}"
@@ -113,11 +114,6 @@ tail -n +2 "${input_path}" | while read -r line; do
 
 done
 
-# This is a bad way to handle the output
-# Need to think of something else
-# Maybe extract the names from the samples somehow but how would you make that as the output in the rule?
-# probably need to make a helper function in python and run that before the rule
-# this then makes a list of directory names that should be output by the next rule aka this one
 touch done.txt
 cd ..
 
