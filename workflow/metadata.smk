@@ -4,7 +4,7 @@ configfile: "config/metadata.yaml"
 rule all:
     input:
         'results/metadata.csv',
-        'logs/processed_stats_per_platform.ipynb',
+        'logs/process_stats/processed_stats_per_platform.ipynb',
 
 
 rule download_SRAdb:
