@@ -79,7 +79,7 @@ rule platform_stats:
     input:
         metadata = rules.wrangle_metadata.output.metadata
     output:
-        notebook = "logs/processed_stats_per_platform.ipynb"
+        notebook = "logs/process_stats/processed_stats_per_platform.ipynb"
     conda: "envs/stats_notebook.yml"
     threads: 1
     resources:
