@@ -5,7 +5,6 @@ library(taxizedb)
 library(tidyverse)
 library(feather)
 library(argparse)
-library(readr)
 
 parser <- ArgumentParser(description= 'Get metadata from NCBI')
 parser$add_argument('--database', '-d', help= 'Specify path to NCBI .sqlite file if already downloaded')
@@ -40,7 +39,7 @@ check_rank <- function (taxon_id) {
   }
 }
 
-taxon_ids <- read_file(user_input) %>%
+taxon_ids <- readLines(user_input) %>%
   strsplit(" ") %>%
   lapply(as.numeric) %>%
   unlist() %>%
@@ -56,7 +55,7 @@ sql_query <- sprintf(
     AND library_strategy = 'WGS'
     AND library_source = 'GENOMIC'
     AND (
-      (platform = 'ILLUMINA' AND library_layout = 'PAIRED - ')
+      (platform = 'ILLUMINA' AND library_layout LIKE '%PAIRED%')
       OR platform = 'OXFORD_NANOPORE'
       OR platform = 'PACBIO_SMRT'
     );", taxon_ids)
