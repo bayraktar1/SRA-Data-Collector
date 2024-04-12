@@ -55,7 +55,7 @@ sql_query <- sprintf(
     AND library_strategy = 'WGS'
     AND library_source = 'GENOMIC'
     AND (
-      (platform = 'ILLUMINA' AND library_layout LIKE '%PAIRED%')
+      (platform = 'ILLUMINA' AND library_layout LIKE '%%PAIRED%%')
       OR platform = 'OXFORD_NANOPORE'
       OR platform = 'PACBIO_SMRT'
     );", taxon_ids)
