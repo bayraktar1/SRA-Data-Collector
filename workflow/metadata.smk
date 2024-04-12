@@ -33,7 +33,8 @@ rule query_ncbi:
         feather_file = "results/SRA.feather"
     params:
         database = config['database'],
-        taxon = config['taxon_id']
+        taxon = config['taxon_id'],
+        accession = config['accession'],
     conda: "envs/Renv.yml"
     log: "logs/query_ncbi/query_ncbi.log"
     threads: 1
@@ -46,7 +47,8 @@ rule query_ncbi:
         r'''
         (workflow/scripts/retrieve_NCBI_metadata.R \
             --database {input.database} \
-            --taxon_id {params.taxon} \
+            --taxon_id_file {params.taxon} \
+            --accession_file {params.accession}
             --output {output.feather_file}) >{log} 2>&1
         '''
 
