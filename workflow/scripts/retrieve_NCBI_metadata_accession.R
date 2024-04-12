@@ -13,7 +13,7 @@ parser$add_argument('--output', '-o', help= 'Specify path to output feather file
 xargs<- parser$parse_args()
 
 database_loc <- xargs$database
-user_input <- xargs$accesions
+user_input <- xargs$accession
 output <- xargs$output
 
 
