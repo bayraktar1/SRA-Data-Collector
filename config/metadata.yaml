@@ -3,6 +3,6 @@ database: "../Data/SRAmetadb.sqlite"
 # NCBI taxon ID
 taxon_id: "../Data/taxons.txt"
 # NCBI taxon ID
-accession: "../Data/accession.txt"
+accession: "../Data/accessions.txt"
 # -i: download Illumina, -n download Nanopore, -p download Pacbio, this is superseded by downloads.smk and will get removed
 download_platforms: "-i"
