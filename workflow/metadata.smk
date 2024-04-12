@@ -48,7 +48,7 @@ rule query_ncbi:
         (workflow/scripts/retrieve_NCBI_metadata.R \
             --database {input.database} \
             --taxon_id_file {params.taxon} \
-            --accession_file {params.accession}
+            --accession_file {params.accession} \
             --output {output.feather_file}) >{log} 2>&1
         '''
 
