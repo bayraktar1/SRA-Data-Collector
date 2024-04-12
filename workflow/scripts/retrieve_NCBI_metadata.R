@@ -5,15 +5,16 @@ library(taxizedb)
 library(tidyverse)
 library(feather)
 library(argparse)
+library(readr)
 
 parser <- ArgumentParser(description= 'Get metadata from NCBI')
 parser$add_argument('--database', '-d', help= 'Specify path to NCBI .sqlite file if already downloaded')
-parser$add_argument('--taxon_id', '-id', help= 'NCBI Taxon id of branch you want all species from')
+parser$add_argument('--taxon_id_file', '-id', help= 'File wth NCBI Taxon ids separated by tabs')
 parser$add_argument('--output', '-o', help= 'Specify path to output feather file')
 xargs<- parser$parse_args()
 
 database_loc <- xargs$database
-user_input <- xargs$taxon_id
+user_input <- xargs$taxon_id_file
 output <- xargs$output
 
 
@@ -39,7 +40,7 @@ check_rank <- function (taxon_id) {
   }
 }
 
-taxon_ids <- user_input %>%
+taxon_ids <- read_file(user_input) %>%
   strsplit(" ") %>%
   lapply(as.numeric) %>%
   unlist() %>%
