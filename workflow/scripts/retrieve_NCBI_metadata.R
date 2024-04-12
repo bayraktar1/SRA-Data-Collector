@@ -8,8 +8,8 @@ library(argparse)
 
 parser <- ArgumentParser(description= 'Get metadata from NCBI')
 parser$add_argument('--database', '-d', help= 'Specify path to NCBI .sqlite file if already downloaded')
-parser$add_argument('--taxon_id_file', '-id', help= 'File wth NCBI Taxon ids separated by tabs')
-parser$add_argument('--accession_file', '-id', help= 'NCBI accessions file')
+parser$add_argument('--taxon_id_file', '-t', help= 'File wth NCBI Taxon ids separated by tabs')
+parser$add_argument('--accession_file', '-a', help= 'NCBI accessions file')
 parser$add_argument('--output', '-o', help= 'Specify path to output feather file')
 xargs<- parser$parse_args()
 
