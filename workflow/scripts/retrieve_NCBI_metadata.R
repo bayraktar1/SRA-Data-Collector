@@ -41,7 +41,7 @@ check_rank <- function (taxon_id) {
   }
 }
 
-taxon_ids <- readLines(user_input) %>%
+taxon_ids <- readLines(user_input_taxon) %>%
   strsplit(" ") %>%
   lapply(as.numeric) %>%
   unlist() %>%
