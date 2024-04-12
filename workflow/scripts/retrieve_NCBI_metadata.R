@@ -9,11 +9,13 @@ library(argparse)
 parser <- ArgumentParser(description= 'Get metadata from NCBI')
 parser$add_argument('--database', '-d', help= 'Specify path to NCBI .sqlite file if already downloaded')
 parser$add_argument('--taxon_id_file', '-id', help= 'File wth NCBI Taxon ids separated by tabs')
+parser$add_argument('--accession_file', '-id', help= 'NCBI accessions file')
 parser$add_argument('--output', '-o', help= 'Specify path to output feather file')
 xargs<- parser$parse_args()
 
 database_loc <- xargs$database
-user_input <- xargs$taxon_id_file
+user_input_taxon <- xargs$taxon_id_file
+user_input_accession <- xargs$accession_file
 output <- xargs$output
 
 
@@ -47,18 +49,23 @@ taxon_ids <- readLines(user_input) %>%
   unlist() %>%
   paste(collapse = ', ')
 
+accessions <- readLines(user_input_accession) %>%
+  strsplit(" ") %>%
+  unlist() %>%
+  paste0('"', ., '"', collapse = ", ")
+
 
 sql_query <- sprintf(
   "SELECT *
   FROM sra
-  WHERE taxon_id IN (%s)
+  WHERE taxon_id IN (%s) OR study_accession IN (%s) OR run_accession in (%s)
     AND library_strategy = 'WGS'
     AND library_source = 'GENOMIC'
     AND (
       (platform = 'ILLUMINA' AND library_layout LIKE '%%PAIRED%%')
       OR platform = 'OXFORD_NANOPORE'
       OR platform = 'PACBIO_SMRT'
-    );", taxon_ids)
+    );", taxon_ids, accessions, accessions)
 
 cat('Running query... \n')
 # This can take a while...
