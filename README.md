@@ -1,4 +1,4 @@
-# Pipeline for downloading samples from NCBI
+# Pipeline for downloading samples from NCBI with Metadata
 
 ## Instructions
 ```bash
