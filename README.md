@@ -1,5 +1,7 @@
 # Pipeline for downloading samples from NCBI with Metadata
 
+This snakemake pipeline takes NBCI taxon IDs, study accessions, and run accession and finds all associated samples. Next, metadata for the collected samples are fetched and cleaned. Finally, samples are downloaded in parallel. 
+
 ## Instructions
 ```bash
 git clone https://github.com/bayraktar1/reconstruct_plasmids_snakemake.git
