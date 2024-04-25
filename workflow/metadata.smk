@@ -69,7 +69,9 @@ rule wrangle_metadata:
         runtime=60,
         partition="cpu",
         ntasks=1,
-        cpus_per_task=1
+        cpus_per_task=1,
+        mem_mb=8000,
+        max_mb=16000
     log: notebook="logs/wrangle_metadata/processed_notebook.ipynb"
     notebook: "notebooks/wrangle_NCBI_metadata.py.ipynb"
 

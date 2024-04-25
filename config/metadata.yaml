@@ -1,8 +1,8 @@
 # Location of database if already downloaded, depending on your system you might have to remove the ../ part of the path
 database: "../Data/SRAmetadb.sqlite"
 # NCBI taxon ID
-taxon_id: "../Data/taxons.txt"
+taxon_id: "Data/taxons.txt"
 # NCBI taxon ID
-accession: "../Data/accessions.txt"
+accession: "Data/accessions.txt"
 # -i: download Illumina, -n download Nanopore, -p download Pacbio, this is superseded by downloads.smk and will get removed
-download_platforms: "-i"
+# download_platforms: "-i"
