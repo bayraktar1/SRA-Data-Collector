@@ -19,7 +19,7 @@ def generate_file_paths(df):
             for pair in [1, 2]:
                 file_path = f"results/SRA_downloads/{row['scientific_name']}/{row['platform']}/{row['run_accession']}/{row['run_accession']}_{pair}.fastq.gz"
                 file_paths.append(file_path)
-        else:
+        elif row['platform'] == "OXFORD_NANOPORE" or row['platform'] == "PACBIO_SMRT":
             file_path = f"results/SRA_downloads/{row['scientific_name']}/{row['platform']}/{row['run_accession']}/{row['run_accession']}.fastq.gz"
             file_paths.append(file_path)
 
