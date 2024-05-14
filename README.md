@@ -23,13 +23,6 @@ snakemake -s workflow/downloads.smk --cores <number of cores> --keep-going --use
 
 `Downloads.smk` should be run with `--keep-going` as files belonging to certain accessions might no longer be available, which means that the rule for that accession will fail. This could also occur if  a sample is invalid, in which case it will fail during fasterq-dump.
 
-## Recommendations and warnings
-- Please be aware that you could download considerable amounts of samples using this pipeline and run out of storage space quickly.
-- It is recommended that you first explore the `metadata.csv` that is output by the `metadata.smk` before downloading the samples.
-- You can make adjustments to the `clean.tsv` output to adjust the samples that will be downloaded.
-- It is recommended that you pass 10–20 cores to downloads.smk to significantly speed up downloading samples.
-- If the download of the SRA database dump fails, you could download it manually from [here](https://gbnci.cancer.gov/backup/SRAmetadb.sqlite.gz) and place it in the `Data/` directory.
-
 ## Selecting species & accessions
 You can specify NCBI taxon IDs in `Data/taxons.txt`. Single or multiple taxons can be specified separated by a space. **If you specify a taxon ID that belongs to a rank higher than a species, all species of that rank will be downloaded!**
 
@@ -38,6 +31,14 @@ Sample accessions and study accessions can be specified in `Data/accessions.txt`
 You can combine them as long as you specify everything in their respective files.
 
 **Samples that fall under "strains" in the NCBi database are currently not found when searching through a higher taxon rank.**
+
+## Recommendations and warnings
+- Please be aware that you could download considerable amounts of samples using this pipeline and run out of storage space quickly.
+- It is recommended that you first explore the `metadata.csv` that is output by the `metadata.smk` before downloading the samples.
+- You can make adjustments to the `clean.tsv` output to adjust the samples that will be downloaded.
+- It is recommended that you pass 10–20 cores to downloads.smk to significantly speed up downloading samples.
+- If the download of the SRA database dump fails, you could download it manually from [here](https://gbnci.cancer.gov/backup/SRAmetadb.sqlite.gz) and place it in the `Data/` directory.
+
 
 # Roadmap
 - [ ] Ensure that samples classified as strains are found by SRA-Data-Collector
