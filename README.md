@@ -1,6 +1,6 @@
-# Pipeline for downloading samples from NCBI with Metadata
-This snakemake pipeline takes NBCI taxon IDs, study accessions, and run accessions and finds all associated samples. Next, metadata for the collected samples is fetched and cleaned. Finally, samples are downloaded in parallel. 
-
+# SRA-Data-Collector
+The SRA-Data-Collector is a pipeline for downloading samples from NCBI with Metadata.
+This Snakemake pipeline takes NBCI taxon IDs, study accessions, and run accessions as input and finds all associated samples. Next, it collects metadata for the found samples, which is then cleaned. Finally, the samples are downloaded in parallel. 
 ![Flowchart](flowchart.png)
 
 ## Instructions
