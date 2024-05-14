@@ -4,7 +4,9 @@ This snakemake pipeline takes NBCI taxon IDs, study accessions, and run accessio
 
 ## Instructions
 In order to run the pipeline you must install Snakemake with Jupyter notebook support in a conda/mamba environment. Please refer to the [Snakemake documentation](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html) for install instructions. 
-Snakemake pipelines can be run locally on you computer or on High Performance clusters with job schedulers. 
+
+
+Snakemake pipelines can be run locally on you computer or on High Performance clusters with job schedulers. Please refer to the [Snakemake documentation](https://snakemake.github.io/snakemake-plugin-catalog/index.html) on how to setup a config for HPC. 
 ### Run locally without a config
 ```bash
 git clone https://github.com/bayraktar1/reconstruct_plasmids_snakemake.git
