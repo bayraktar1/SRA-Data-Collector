@@ -23,7 +23,7 @@ snakemake -s workflow/downloads.smk --cores <number of cores> --keep-going --use
 
 `Downloads.smk` should be run with `--keep-going` as files belonging to certain accessions might no longer be available, which means that the rule for that accession will fail. This could also occur if  a sample is invalid, in which case it will fail during fasterq-dump.
 
-## Selecting species & accessions
+### Selecting species & accessions
 You can specify NCBI taxon IDs in `Data/taxons.txt`. Single or multiple taxons can be specified separated by a space. **If you specify a taxon ID that belongs to a rank higher than a species, all species of that rank will be downloaded!**
 
 Sample accessions and study accessions can be specified in `Data/accessions.txt`. All samples associated with a study will be collected and downloaded.
@@ -40,16 +40,16 @@ You can combine them as long as you specify everything in their respective files
 - If the download of the SRA database dump fails, you could download it manually from [here](https://gbnci.cancer.gov/backup/SRAmetadb.sqlite.gz) and place it in the `Data/` directory.
 
 
-# Roadmap
+## Roadmap
 - [ ] Ensure that samples classified as strains are found by SRA-Data-Collector
 - [ ] Simplify passing taxon IDs and accessions
 - [ ] Move away from Snakemake and make an independent package
-- [ ] Move away from SRAdb
+- [ ] Move away from the SRAdb package
 - [ ] Expand processing of Country names beyond INSDC list with fuzzy searching
 - [ ] Improve processing of sample sources names by creating categories/groups
 
 
-## License
+# License
 
 MIT License
 
